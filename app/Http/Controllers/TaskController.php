@@ -94,3 +94,4 @@ class TaskController extends Controller
             abort(404);
         }
     }
+}
