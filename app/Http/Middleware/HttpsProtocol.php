@@ -15,9 +15,11 @@ class HttpsProtocol
      */
     public function handle($request, Closure $next)
     {
-        if (!$request->secure() && config('app.env') === 'production' || config('app.env') === 'staging') {
-            return redirect()->secure($request->getRequestUri());
-        }
+        if (config('app.env') === 'production' || config('app.env') === 'staging') {
+            if ($_SERVER["HTTP_X_FORWARDED_PROTO"] != 'https') {
+              return redirect()->secure($request->getRequestUri());
+            }
+          }
         return $next($request);
     }
 }
