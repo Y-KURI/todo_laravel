@@ -6,6 +6,8 @@ use App\Http\Requests\EditTask;
 use App\Task;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+
 class TaskController extends Controller
 {
     /**
@@ -93,5 +95,35 @@ class TaskController extends Controller
         if ($folder->id !== $task->folder_id) {
             abort(404);
         }
+    }
+   
+    public function export( Folder $folder, Request $request )
+    {   
+        $response = new StreamedResponse (function() use ($request){
+ 
+            $stream = fopen('php://output', 'w');
+
+            //　文字化け回避
+            stream_filter_prepend($stream,'convert.iconv.utf-8/cp932//TRANSLIT');
+ 
+            // タイトルを追加
+            fputcsv($stream, ['id','folder_id','title','due_date','created_at','updated_at']);
+
+            $tasks = Task::get();
+
+            foreach ($tasks as $row) {
+                fputcsv($stream, [$row->id,
+                                  $row->folder_id,
+                                  $row->title,
+                                  $row->due_date,
+                                  $row->created_at,
+                                  $row->updated_at]);
+            }
+            fclose($stream);
+        });
+        $response->headers->set('Content-Type', 'text/csv');
+        $response->headers->set('Content-Disposition', 'attachment; filename="TaskList.csv"');
+ 
+        return $response;
     }
 }

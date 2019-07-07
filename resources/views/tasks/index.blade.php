@@ -31,6 +31,7 @@
               <a href="{{ route('tasks.create', ['id' => $current_folder_id]) }}" class="btn btn-default btn-block">
                 タスクを追加する
               </a>
+              <a href="{{ route('tasks.export', ['id' => $folder->id, 'tasks' => $tasks]) }}" class="btn btn-info"><i class="fas fa-download"></i> Export to CSV</a>
             </div>
           </div>
           <table class="table">
